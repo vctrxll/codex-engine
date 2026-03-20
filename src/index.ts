@@ -1,9 +1,7 @@
-import { Hono } from "hono";
+import app from './app'
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
-
-app.get("/message", (c) => {
-  return c.text("Hello Hono!");
-});
-
-export default app;
+export default {
+    fetch: (request: Request, env: any, ctx: any) => {
+        return app.fetch(request, env, ctx)
+    }
+}

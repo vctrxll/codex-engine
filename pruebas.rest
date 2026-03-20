@@ -1,0 +1,46 @@
+POST http://localhost:8787/api/museums
+Content-Type: application/json
+
+{
+  "name": "Museo Nacional de Antropología",
+  "city": "CDMX",
+  "state": "CDMX",
+  "country": "México",
+  "description": "El Museo Nacional de Antropología es uno de los museos más importantes de México, dedicado a la preservación y exhibición de la riqueza cultural y arqueológica del país. Fundado en 1964, el museo alberga una vasta colección de artefactos prehispánicos, incluyendo piezas de las civilizaciones azteca, maya, zapoteca y muchas otras. Entre sus exhibiciones más destacadas se encuentran la Piedra del Sol (Calendario Azteca) y la máscara de Pakal. El museo también ofrece actividades educativas, talleres y eventos culturales para promover el conocimiento y la apreciación de la historia y cultura mexicana.",
+  "website": "https://www.mna.inah.gob.mx/",
+  "contact_email": "dhshdhd@gmail.com"
+}
+
+###
+GET http://localhost:8787/api/museums
+###
+POST https://codex-engine.viictor-axel11.workers.dev/api/museums
+Content-Type: application/json
+
+{
+  "name": "Museo Nacional de Antropología",
+  "city": "CDMX",
+  "state": "CDMX",
+  "country": "México",
+  "description": "El Museo Nacional de Antropología es uno de los museos más importantes de México, dedicado a la preservación y exhibición de la riqueza cultural y arqueológica del país. Fundado en 1964, el museo alberga una vasta colección de artefactos prehispánicos, incluyendo piezas de las civilizaciones azteca, maya, zapoteca y muchas otras. Entre sus exhibiciones más destacadas se encuentran la Piedra del Sol (Calendario Azteca) y la máscara de Pakal. El museo también ofrece actividades educativas, talleres y eventos culturales para promover el conocimiento y la apreciación de la historia y cultura mexicana.",
+  "website": "https://www.mna.inah.gob.mx/",
+  "contact_email": "dhshdhd@gmail.com"
+}
+
+###
+POST https://codex-engine.viictor-axel11.workers.dev/api/museums
+Content-Type: application/json
+
+{
+  "name": "Museo Regional Casa Verde",
+  "city": "Tuxtepec",
+  "state": "Oaxaca",
+  "country": "México",
+  "description": "La Casa Verde es uno de los inmuebles más emblemáticos de Tuxtepec y, desde 1992, fue destinada para convertirse en un espacio cultural y de identidad regional. Ese año, el patronato recibió el inmueble en comodato, dando inicio al sueño de contar con un museo para la comunidad. El camino no fue sencillo. En 2011, la construcción de la primera etapa se detuvo por falta de recursos municipales, pero gracias al compromiso del gobierno estatal y al apoyo de instituciones culturales, los trabajos pudieron retomarse. En 2015, se reanudó la obra y se celebraron los 25 años de existencia del patronato.Finalmente, en agosto de 2021, con el respaldo del programa PAICE y un financiamiento de más de un millón de pesos, se concluyó la primera etapa de construcción del Museo Regional Casa Verde de Tuxtepec. Hoy, este espacio no solo resguarda la memoria histórica y cultural de la región, sino que también se ha convertido en un símbolo de perseverancia y colaboración comunitaria.",
+  "website": "https://museoregionalcasaverde.com/",
+  "contact_email": "dhshdhd@gmail.com"
+}
+
+###
+GET https://codex-engine.viictor-axel11.workers.dev/api/museums
+###

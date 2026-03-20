@@ -7,15 +7,18 @@
 	"name": "codex-engine",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-03-17",
-	"assets": {
-		"binding": "ASSETS",
-		"directory": "./public"
-	},
 	"observability": {
 		"enabled": true
 	},
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "codex_db",
+			"database_name": "codex-db",
+			"database_id": "062c9f64-ee39-4354-91e3-7674fa89b363"
+		}
 	]
 	/**
 	 * Smart Placement

@@ -3,7 +3,7 @@
 // Runtime types generated with workerd@1.20260317.1 2026-03-17 nodejs_compat
 declare namespace Cloudflare {
 	interface GlobalProps {
-		mainModule: typeof import("./src/index");
+		mainModule: typeof import("./src/modules");
 	}
 	interface Env {
 		ASSETS: Fetcher;

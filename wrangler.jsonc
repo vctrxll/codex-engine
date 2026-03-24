@@ -17,7 +17,8 @@
 		{
 			"binding": "codex_db",
 			"database_name": "codex-db",
-			"database_id": "062c9f64-ee39-4354-91e3-7674fa89b363"
+			"database_id": "ea81d513-e998-48aa-a7d9-127148190399",
+			"remote": false
 		}
 	]
 	/**

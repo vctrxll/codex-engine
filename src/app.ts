@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { museumRoutes } from './modules/museum/museum.routes'
 
-const app = new Hono<{ Bindings: { codex_db: D1Database } }>()
+const app = new Hono
 
 app.route('/api/museums', museumRoutes)
 

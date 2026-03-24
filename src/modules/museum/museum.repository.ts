@@ -1,10 +1,10 @@
 export const museumRepository = {
     getAll(db: D1Database) {
-        return db.prepare(`SELECT * FROM museums`).all()
+        return db.prepare(`SELECT * FROM active_museums`).all()
     },
 
     getById(db: D1Database, id: number) {
-        return db.prepare(`SELECT * FROM museums WHERE id = ?`)
+        return db.prepare(`SELECT * FROM active_museums WHERE id = ?`)
             .bind(id)
             .first()
     },
@@ -12,8 +12,8 @@ export const museumRepository = {
     create(db: D1Database, data: any) {
         return db.prepare(`
       INSERT INTO museums (name, city, state, country, description, website, contact_email)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`
+        )
             .bind(
                 data.name,
                 data.city,

@@ -1,9 +1,11 @@
--- Activar claves foráneas
+-- =====================================
+-- CONFIG
+-- =====================================
 PRAGMA foreign_keys = ON;
 
--- =========================
+-- =====================================
 -- TABLE: museums
--- =========================
+-- =====================================
 CREATE TABLE museums (
                          id INTEGER PRIMARY KEY,
                          name TEXT NOT NULL,
@@ -13,32 +15,33 @@ CREATE TABLE museums (
                          description TEXT,
                          website TEXT,
                          contact_email TEXT,
-                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                         deleted_at DATETIME
 );
 
--- =========================
+CREATE INDEX idx_museums_deleted_at ON museums(deleted_at);
+
+-- =====================================
 -- TABLE: cultures
--- =========================
+-- =====================================
 CREATE TABLE cultures (
                           id INTEGER PRIMARY KEY,
                           name TEXT NOT NULL,
                           description TEXT
 );
 
--- =========================
+-- =====================================
 -- TABLE: periods
--- =========================
+-- =====================================
 CREATE TABLE periods (
                          id INTEGER PRIMARY KEY,
                          name TEXT NOT NULL,
-                         start_year INTEGER,
-                         end_year INTEGER,
                          description TEXT
 );
 
--- =========================
+-- =====================================
 -- TABLE: artifacts
--- =========================
+-- =====================================
 CREATE TABLE artifacts (
                            id INTEGER PRIMARY KEY,
                            name TEXT NOT NULL,
@@ -47,22 +50,22 @@ CREATE TABLE artifacts (
                            period_id INTEGER,
                            description TEXT,
                            material TEXT,
-                           discovery_year INTEGER,
-                           image_url TEXT,
                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                           deleted_at DATETIME,
 
                            FOREIGN KEY (museum_id) REFERENCES museums(id),
                            FOREIGN KEY (culture_id) REFERENCES cultures(id),
                            FOREIGN KEY (period_id) REFERENCES periods(id)
 );
 
-CREATE INDEX artifacts_museum_id_index ON artifacts(museum_id);
-CREATE INDEX artifacts_culture_id_index ON artifacts(culture_id);
-CREATE INDEX artifacts_period_id_index ON artifacts(period_id);
+CREATE INDEX idx_artifacts_museum_id ON artifacts(museum_id);
+CREATE INDEX idx_artifacts_culture_id ON artifacts(culture_id);
+CREATE INDEX idx_artifacts_period_id ON artifacts(period_id);
+CREATE INDEX idx_artifacts_deleted_at ON artifacts(deleted_at);
 
--- =========================
--- TABLE: artifact_metadata
--- =========================
+-- =====================================
+-- TABLE: artifact_metadata (1:1)
+-- =====================================
 CREATE TABLE artifact_metadata (
                                    id INTEGER PRIMARY KEY,
                                    artifact_id INTEGER NOT NULL UNIQUE,
@@ -71,24 +74,18 @@ CREATE TABLE artifact_metadata (
                                    depth_cm REAL,
                                    inventory_code TEXT,
                                    collection TEXT,
-                                   discovery_site TEXT,
-                                   excavation_year INTEGER,
-                                   archaeologist TEXT,
                                    conservation_status TEXT,
-                                   legal_status TEXT,
-                                   storage_location TEXT,
                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
                                    FOREIGN KEY (artifact_id) REFERENCES artifacts(id)
 );
 
--- =========================
--- TABLE: models_3d
--- =========================
+-- =====================================
+-- TABLE: models_3d (1:N)
+-- =====================================
 CREATE TABLE models_3d (
                            id INTEGER PRIMARY KEY,
                            artifact_id INTEGER NOT NULL,
-                           preview_url TEXT,
                            file_low TEXT,
                            file_high TEXT,
                            format TEXT,
@@ -99,45 +96,95 @@ CREATE TABLE models_3d (
                            FOREIGN KEY (artifact_id) REFERENCES artifacts(id)
 );
 
-CREATE INDEX models_3d_artifact_id_index ON models_3d(artifact_id);
+CREATE INDEX idx_models3d_artifact_id ON models_3d(artifact_id);
 
--- =========================
+-- =====================================
 -- TABLE: users
--- =========================
+-- =====================================
 CREATE TABLE users (
                        id INTEGER PRIMARY KEY,
                        name TEXT NOT NULL,
-                       email TEXT NOT NULL UNIQUE,
+                       email TEXT NOT NULL,
                        password_hash TEXT NOT NULL,
                        role TEXT NOT NULL,
                        museum_id INTEGER,
                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                       deleted_at DATETIME,
 
                        FOREIGN KEY (museum_id) REFERENCES museums(id)
 );
 
--- =========================
--- TABLE: api_keys
--- =========================
-CREATE TABLE api_keys (
-                          id INTEGER PRIMARY KEY,
-                          user_id INTEGER NOT NULL,
-                          api_key TEXT NOT NULL UNIQUE,
-                          plan TEXT,
-                          request_limit INTEGER,
-                          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+-- UNIQUE solo para usuarios activos
+CREATE UNIQUE INDEX idx_users_email_active
+    ON users(email)
+    WHERE deleted_at IS NULL;
 
-                          FOREIGN KEY (user_id) REFERENCES users(id)
-);
+CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 
--- =========================
--- TABLE: api_usage
--- =========================
-CREATE TABLE api_usage (
-                           id INTEGER PRIMARY KEY,
-                           api_key_id INTEGER,
-                           endpoint TEXT,
-                           request_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+-- =====================================
+-- VIEWS (MUY IMPORTANTE PARA API)
+-- =====================================
 
-                           FOREIGN KEY (api_key_id) REFERENCES api_keys(id)
-);
+-- Museos activos
+CREATE VIEW active_museums AS
+SELECT * FROM museums
+WHERE deleted_at IS NULL;
+
+-- Artifacts activos
+CREATE VIEW active_artifacts AS
+SELECT * FROM artifacts
+WHERE deleted_at IS NULL;
+
+-- Usuarios activos
+CREATE VIEW active_users AS
+SELECT * FROM users
+WHERE deleted_at IS NULL;
+
+-- Vista enriquecida (JOIN limpio)
+CREATE VIEW artifact_full_view AS
+SELECT
+    a.id,
+    a.name,
+    a.description,
+    a.material,
+    a.created_at,
+
+    m.name AS museum_name,
+    c.name AS culture_name,
+    p.name AS period_name
+
+FROM artifacts a
+         LEFT JOIN museums m
+                   ON a.museum_id = m.id AND m.deleted_at IS NULL
+         LEFT JOIN cultures c
+                   ON a.culture_id = c.id
+         LEFT JOIN periods p
+                   ON a.period_id = p.id
+
+WHERE a.deleted_at IS NULL;
+
+-- =====================================
+-- TRIGGERS (SOFT DELETE CASCADE LÓGICO)
+-- =====================================
+
+-- Cuando se elimina un museo → eliminar artifacts
+CREATE TRIGGER soft_delete_artifacts_from_museum
+    AFTER UPDATE OF deleted_at ON museums
+    WHEN NEW.deleted_at IS NOT NULL
+BEGIN
+    UPDATE artifacts
+    SET deleted_at = CURRENT_TIMESTAMP
+    WHERE museum_id = NEW.id
+      AND deleted_at IS NULL;
+END;
+
+-- Cuando se restaura un museo → NO restaurar artifacts automáticamente
+-- (esto es intencional para evitar inconsistencias)
+
+-- =====================================
+-- HELPERS (CONSULTAS BASE)
+-- =====================================
+
+-- Obtener artifacts activos con modelos
+-- (ejemplo base para endpoints)
+-- SELECT * FROM artifact_full_view WHERE id = ?;

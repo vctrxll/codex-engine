@@ -1,5 +1,6 @@
 import { museumRepository } from './museum.repository'
 import type { CreateMuseumDTO, Museum } from './museum.types'
+import { BadRequestError } from '../../shared/errors'
 
 export const museumService = {
     async getAll(db: D1Database) {
@@ -12,12 +13,6 @@ export const museumService = {
     },
 
     async create(db: D1Database, data: CreateMuseumDTO): Promise<Museum> {
-
-        // 🔹 VALIDACIÓN
-        if (!data.name || data.name.trim().length === 0) {
-            throw new Error('Name is required')
-        }
-
         // 🔹 NORMALIZACIÓN
         const normalizedData = {
             name: data.name?.trim(),
@@ -29,11 +24,11 @@ export const museumService = {
             contact_email: data.contact_email?.trim()
         }
 
-        for (const [key, value] of Object.entries(normalizedData)) {
-            if (!value) {
-                throw new Error(`${key} is required`)
-            }
+        if (!normalizedData.name || !normalizedData.city || !normalizedData.state || !normalizedData.country || !normalizedData.description || !normalizedData.website || !normalizedData.contact_email) {
+            throw new BadRequestError('Missing required fields: name, city, state, country, description, website, contact_email')
         }
+
+
 
         const safeData = {
             name: normalizedData.name!,
@@ -47,7 +42,7 @@ export const museumService = {
 
         // 🔹 REGLA DE NEGOCIO (ejemplo)
         // const existing = await museumRepository.findByName(db, normalizedData.name)
-        // if (existing) throw new Error('Museum already exists')
+        // if (existing) throw new BadRequestError('Museum already exists')
 
         const result = await museumRepository.create(db, safeData)
 

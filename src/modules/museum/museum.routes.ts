@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { museumService } from './museum.service'
 import { success, error } from '../../shared/response'
 import { getDB } from '../../shared/db'
+import { AppError } from '../../shared/errors'
 
 export const museumRoutes = new Hono<{ Bindings: { codex_db: D1Database } }>()
 

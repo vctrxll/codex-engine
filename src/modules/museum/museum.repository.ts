@@ -4,9 +4,7 @@ export const museumRepository = {
     },
 
     getById(db: D1Database, id: number) {
-        return db.prepare(`SELECT * FROM active_museums WHERE id = ?`)
-            .bind(id)
-            .first()
+        return db.prepare(`SELECT * FROM active_museums WHERE id = ?`).bind(id).first()
     },
 
     create(db: D1Database, data: any) {

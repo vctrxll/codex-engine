@@ -1,4 +1,5 @@
 import { museumRepository } from './museum.repository'
+import type { CreateMuseumDTO, Museum } from './museum.types'
 
 export const museumService = {
     async getAll(db: D1Database) {
@@ -10,16 +11,49 @@ export const museumService = {
         return await museumRepository.getById(db, id)
     },
 
-    async create(db: D1Database, data: any) {
-        if (!data.name) {
+    async create(db: D1Database, data: CreateMuseumDTO): Promise<Museum> {
+
+        // 🔹 VALIDACIÓN
+        if (!data.name || data.name.trim().length === 0) {
             throw new Error('Name is required')
         }
 
-        const result = await museumRepository.create(db, data)
+        // 🔹 NORMALIZACIÓN
+        const normalizedData = {
+            name: data.name?.trim(),
+            city: data.city?.trim(),
+            state: data.state?.trim(),
+            country: data.country?.trim(),
+            description: data.description?.trim(),
+            website: data.website?.trim(),
+            contact_email: data.contact_email?.trim()
+        }
+
+        for (const [key, value] of Object.entries(normalizedData)) {
+            if (!value) {
+                throw new Error(`${key} is required`)
+            }
+        }
+
+        const safeData = {
+            name: normalizedData.name!,
+            city: normalizedData.city!,
+            state: normalizedData.state!,
+            country: normalizedData.country!,
+            description: normalizedData.description!,
+            website: normalizedData.website!,
+            contact_email: normalizedData.contact_email!
+        }
+
+        // 🔹 REGLA DE NEGOCIO (ejemplo)
+        // const existing = await museumRepository.findByName(db, normalizedData.name)
+        // if (existing) throw new Error('Museum already exists')
+
+        const result = await museumRepository.create(db, safeData)
 
         return {
             id: result.meta.last_row_id,
-            ...data
+            ...safeData
         }
     }
 }

@@ -1,12 +1,20 @@
+export type CreateMuseumDTO = {
+    name: string
+    city?: string
+    state?: string
+    country?: string
+    description?: string
+    website?: string
+    contact_email?: string
+}
+
 export type Museum = {
     id: number
     name: string
-    city?: string | null
-    state?: string | null
-    country?: string | null
-    description?: string | null
-    website?: string | null
-    contact_email?: string | null
+    city: string
+    state: string
+    country: string
+    description: string
+    website: string
+    contact_email: string
 }
-
-export type CreateMuseumDTO = Omit<Museum, 'id'>
